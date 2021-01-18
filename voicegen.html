@@ -1,0 +1,52 @@
+<!DOCTYPE html><html lang="ja">
+<head><meta charset="UTF-8">
+<title>WebVoice 音声合成サンプル</title>
+<style>
+#text {
+  border: 2px solid green;
+  width: 80vw;
+  min-height: 2em;
+  margin-bottom: 0.5em;
+}
+</style>
+</head>
+<body>
+<h1>WebVoice 音声合成サンプル</h1>
+<form id="form">
+<input id="text" class=border><br>
+</form>
+<select id="sellang"><option value="ja-JP">日本語</option><option value="en-US">英語</option></select>
+<button id="btn">音声合成</button><br><br>
+<div id="content" class=border></div>
+
+<script type="module">
+window.onload = () => {
+  if (!window.SpeechSynthesisUtterance) {
+    alert("音声合成API非対応です");
+    return;
+  }
+  const speech = () => {
+    const msg = new SpeechSynthesisUtterance();
+    msg.volume = 1.0;
+    msg.rate = 1.0;
+    msg.pitch = 1.0;
+    msg.lang = sellang.value; // en-US or ja-JP
+    msg.text = text.value;
+    speechSynthesis.speak(msg);
+    msg.onend = (e) => {
+      console.log(e.elapsedTime);
+    }
+  };
+  btn.onclick = speech;
+  form.onsubmit = (e) => {
+    speech();
+    text.value = "";
+    e.preventDefault();
+  };
+};
+</script>
+<hr>
+Related: <a href=voicerecog.html>WebVoice 音声認識サンプル</a><br>
+App: CC BY <a href=https://fukuno.jig.jp/3099>福野泰介の一日一創</a><br>
+</body>
+</html>

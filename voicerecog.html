@@ -1,0 +1,72 @@
+<!DOCTYPE html><html lang="ja">
+<head><meta charset="UTF-8">
+<title>WebVoice 音声認識サンプル</title>
+<style>
+.border {
+    border: 2px solid green;
+    min-height: 2em;
+    width: 94vw;
+}
+textarea {
+    height: 10em;
+}
+</style>
+</head>
+<body>
+<h1>WebVoice 音声認識サンプル</h1>
+<select id="sellang"><option value="ja-JP">日本語</option><option value="en-US">英語</option></select>
+<button id="btn">音声認識を開始する</button><br><br>
+<div id="recog" class=border></div>
+<div class="subtitle">認識結果</div>
+<textarea id="content" class=border></textarea>
+
+<script type="module">
+window.onload = () => {
+    if (!window.webkitSpeechRecognition && !window.SpeechRecognition) {
+        alert("音声認識API非対応です");
+        return;
+    }
+    const speech = window.webkitSpeechRecognition ? new webkitSpeechRecognition() : new SpeechRecognition();
+    speech.continuous = true;
+    speech.interimResults = true;
+
+    speech.onresult = (e) => {
+        console.log(e);
+        const res = e.results;
+        const r = res[res.length - 1];
+        const tscr = r[0].transcript;
+        if (!r.isFinal) {
+            recog.textContent = tscr;
+        } else {
+            content.value += tscr + "\n";
+            recog.textContent = "";
+        }
+    };
+    speech.onsoundstart = () => {
+        btn.textContent = "音声認識中";
+    };
+    speech.onnomatch = (e) => {
+        btn.textContent = "もう一度試してください";
+    };
+    speech.onerror = (e) => {
+        console.log(e);
+        btn.textContent = "エラー（音声認識を再開する）";
+    };
+    speech.onsoundend = () => {
+        btn.textContent = "音声認識を開始する";
+    };
+    btn.onclick = () => {
+        speech.lang = sellang.value; // "ja-JP";
+        try {
+            speech.start();
+        } catch (e) {
+            speech.stop();
+        }
+    };
+};
+</script>
+<hr>
+Related: <a href=voicegen.html>WebVoice 音声合成サンプル</a><br>
+App: CC BY <a href=https://fukuno.jig.jp/3099>福野泰介の一日一創</a><br>
+<body>
+<html>

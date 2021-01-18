@@ -1,0 +1,70 @@
+<!DOCTYPE html><html lang="ja">
+<head><meta charset="UTF-8">
+<title>音声認識クイズ</title>
+<style>
+.border {
+    border: 2px solid green;
+    min-height: 2em;
+}
+</style>
+</head>
+<body>
+<h2>音声認識クイズ</h2>
+<button id="btn">音声認識を開始する</button><br><br>
+<div id="recog" class=border></div>
+<div class="subtitle">認識結果</div>
+<div id="content" class=border></div>
+
+<script type="module">
+window.onload = () => {
+    const speech = new webkitSpeechRecognition();
+    // 効かない様子
+    //const grammar = '#JSGF V1.0; grammar colors; public <color> = aqua | azure | beige | bisque | black | blue | brown | chocolate | coral | crimson | cyan | fuchsia | ghostwhite | gold | goldenrod | gray | green | indigo | ivory | khaki | lavender | lime | linen | magenta | maroon | moccasin | navy | olive | orange | orchid | peru | pink | plum | purple | red | salmon | sienna | silver | snow | tan | teal | thistle | tomato | turquoise | violet | white | yellow ;'
+    const grammar = '#JSGF V1.0 JIS ja; grammar ox; public <ox> = まる | ばつ ;'
+    const speechRecognitionList = new webkitSpeechGrammarList();
+    speechRecognitionList.addFromString(grammar, 1);
+    speech.grammars = speechRecognitionList;
+    speech.continuous = true;
+    speech.interimResults = true;
+    speech.maxAlternatives = 100;
+
+    speech.onresult = (e) => {
+        const res = e.results;
+        const r = res[res.length - 1];
+        const text = r[r.length - 1].transcript;
+        if (!r.isFinal) {
+            recog.textContent = text;
+        } else {
+            const div = document.createElement("div");
+            div.textContent = text;
+            content.appendChild(div);
+            recog.textContent = "";
+        }
+    };
+    speech.onsoundstart = () => {
+        btn.textContent = "音声認識中";
+    };
+    speech.onnomatch = (e) => {
+        btn.textContent = "もう一度試してください";
+    };
+    speech.onerror = (e) => {
+        console.log(e);
+        btn.textContent = "エラー（音声認識を再開する）";
+    };
+    speech.onsoundend = () => {
+        btn.textContent = "音声認識を開始する";
+    };
+    btn.onclick = () => {
+        //speech.lang = sellang.value; // "ja-JP";
+        speech.lang =  "ja-JP";
+        console.log(speech);
+        try {
+            speech.start();
+        } catch (e) {
+            speech.stop();
+        }
+    };
+};
+</script>
+<body>
+<html>
